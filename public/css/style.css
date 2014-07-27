@@ -1,0 +1,78 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,500,300);
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+body {
+	font-family: 'Roboto', sans-serif;
+	min-width: 520px;
+}
+
+#container {
+	width: 500px;
+	margin: 0 auto;
+	padding: 10px 0;
+}
+
+h1 {
+	font-weight: 300;
+	font-size: 32px;
+	line-height: 32px;
+	margin-bottom: 20px;
+}
+
+h3 {
+	font-weight: 300;
+	font-size: 20px;
+	line-height: 20px;
+}
+
+input {
+	font-size: 16px;
+	line-height: 16px;
+	padding: 4px;
+	width: 85%;
+}
+
+button {
+	font-size: 16px;
+	line-height: 16px;
+	padding: 7px;
+	width: 13%;
+	float: right;
+}
+
+.win {
+	width: 500px;
+	border: 1px solid #aaa;
+	margin: 6px 0px 20px;
+}
+
+.win div: {
+	width: 100%;
+}
+
+.win div {
+	font-weight: 300;
+	font-size: 16px;
+	line-height: 16px;
+	padding: 4px;
+}
+
+.win div:nth-of-type(odd){
+	background-color: #f3f3f3;
+}
+
+.win div:nth-of-type(even){
+	background-color: #ddd;
+}
+
+#msgs {
+	height: 300px;
+}
+
+#cmds {
+	height: 200px;
+}
