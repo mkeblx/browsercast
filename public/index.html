@@ -12,7 +12,7 @@
 
 	<div>
 		<form id="msg-form" action="">
-			<input id="msg" autocomplete="off" placeholder="enter message">
+			<input class="input" id="msg" autocomplete="off" placeholder="enter message">
 			<button id="send-msg">Send</button>
 		</form>
 		<div class="win" id="msgs"></div>
@@ -20,14 +20,20 @@
 
 	<div>
 		<form id="cmd-form" action="">
-			<input id="cmd" autocomplete="off" placeholder="enter command">
+			<input class="input" id="cmd" autocomplete="off" placeholder="enter command">
 			<button id="send-cmd">Send</button>
 		</form>
+		<div>
+			<div class="cmd" data-value="list">list</div>
+			<div class="cmd" data-value="color">color</div>
+			<input class="param" id="color-param" data-param="color" value="cyan">
+		</div>
 		<div class="win" id="cmds"></div>
 	</div>
 
 	</div>
 
+<script src="js/libs/lodash.min.js"></script>
 <script src="js/libs/jquery.min.js"></script>
 <script src="socket.io/socket.io.js"></script>
 <script src="js/main.js"></script>

@@ -6,6 +6,23 @@ var $cmd = $('#cmd');
 var $msg = $('#msg');
 
 
+var commands = {
+	'list': {
+		description: 'list users',
+		action: function(data){
+			var $el = $('<div>').text(data.value);
+			$('#cmds').prepend($el);
+		}
+	},
+	'color': {
+		description: 'change background color',
+		action: function(data){
+			console.log(data);
+			$('body').css('background-color', data.value);
+		}
+	}
+};
+
 function postCmd() {
 	var val = $cmd.val().trim();
 	if (val != '') {
@@ -19,9 +36,20 @@ function sendCmd(cmd) {
 	socket.emit('cmd', cmd);
 }
 function receiveCmd(cmd) {
-	console.log('received command: ' + cmd);
-	var $el = $('<div>').text(cmd);
-	$('#cmds').prepend($el);
+	var cmdName = _.isString(cmd) ? cmd : cmd.name;
+	console.log('received command: ' + cmdName);
+
+	if (_.isString(cmd)) {
+		var $el = $('<div>').text(cmd);
+		$('#cmds').prepend($el);
+	} else {
+		if (_.contains(_.keys(commands), cmdName)) {
+			var _cmd = commands[cmdName];
+			_cmd.action(cmd.data);
+		} else {
+			console.log('unknown command');
+		}
+	}
 }
 
 function postMsg(){
@@ -50,6 +78,25 @@ function init() {
 
 	$('#msg-form').submit(postMsg);
 	socket.on('msg', receiveMsg);
+
+	// custom commands
+	$('#container').on('click', '.cmd', function(ev){
+		var $this = $(this);
+
+		var cmd = $this.data('value');
+		var cmdObj = {
+			name: cmd,
+			data: {
+				value: null
+			}
+		};
+
+		if (cmd == 'color') {
+			cmdObj.data.value = $('#color-param').val();
+		}
+
+		sendCmd(cmdObj);
+	});
 }
 
 init();

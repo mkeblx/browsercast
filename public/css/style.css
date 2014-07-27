@@ -8,12 +8,14 @@
 body {
 	font-family: 'Roboto', sans-serif;
 	min-width: 520px;
+	background-color: #f3f3f3;
 }
 
 #container {
 	width: 500px;
 	margin: 0 auto;
-	padding: 10px 0;
+	padding: 10px 10px;
+	background-color: #fff;
 }
 
 h1 {
@@ -29,11 +31,18 @@ h3 {
 	line-height: 20px;
 }
 
-input {
+input.input {
 	font-size: 16px;
 	line-height: 16px;
 	padding: 4px;
 	width: 85%;
+}
+
+input.param {
+	font-size: 16px;
+	line-height: 16px;
+	padding: 4px;
+	width: 90px;
 }
 
 button {
@@ -45,9 +54,10 @@ button {
 }
 
 .win {
-	width: 500px;
+	width: 100%;
 	border: 1px solid #aaa;
 	margin: 6px 0px 20px;
+	overflow: auto;
 }
 
 .win div: {
@@ -76,3 +86,18 @@ button {
 #cmds {
 	height: 200px;
 }
+
+.cmd {
+	display: inline-block;
+	padding: 5px 10px;
+	border: 1px solid black;
+	margin-top: 5px;
+	background-color: #e3e3e3;
+}
+
+.cmd:hover {
+	cursor: pointer;
+	background-color: #f0f0f0;
+}
+
+
