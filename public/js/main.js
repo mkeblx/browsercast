@@ -5,7 +5,6 @@ var socket = io();
 var $cmd = $('#cmd');
 var $msg = $('#msg');
 
-
 var commands = {
 	'list': {
 		description: 'list users',
@@ -72,7 +71,20 @@ function receiveMsg(msg) {
 }
 
 
+function joinRoom(name) {
+	var hash = window.location.hash.substr(1);
+	if (hash == '') {
+		hash = 'room'+Math.round(Math.random()*1000);
+		window.location.hash = hash;
+	}
+
+	socket.emit('joinRoom', hash);
+}
+
+
 function init() {
+	joinRoom();
+
 	$('#cmd-form').submit(postCmd);
 	socket.on('cmd', receiveCmd);
 

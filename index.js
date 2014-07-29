@@ -6,6 +6,9 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var colors = require('colors');
+var uuid = require('node-uuid');
+
+var Room = require('./src/Room');
 
 var PORT = process.env.PORT || 3000;
 
@@ -13,30 +16,59 @@ app.get('/', function(req, res){
 	res.sendfile('public/index.html');
 });
 
-var rooms = ['global'];
+var rooms = {'global': {}};
 var clients = {};
 var num_users = 0;
 
-io.on('connection', function(socket){
+io.on('connection', function(client){
 	console.log('a user connected');
 
-	clients[socket.id] = 'user_no_'+num_users++;
+	var c = {
+		name: 'user_no_'+num_users++,
+		roomId: null,
+		joined: new Date(),
+		obj: client
+	};
+
+	clients[client.id] = c;
 	console.log(clients);
 
-	var ctx = 'global';
-	socket.join(ctx);
 
-	socket.emit('msg', 'Welcome!');
-	socket.emit('cmd', 'command');
+	client.on('msg', _.bind(msgReceive, c));
+	client.on('cmd', _.bind(cmdReceive, c));
 
-	socket.on('msg', msgReceive);
-	socket.on('cmd', cmdReceive);
+	client.on('joinRoom', function(id){
+		var roomExists = _.has(rooms, id);
+		if (!roomExists) {
+			console.log('create room: '.magenta + id);
+			rooms[id] = new Room('room'+_.size(rooms), id);
+		}
 
-	socket.on('disconnect', function(){
-		console.log('deleting client: ' + socket.id);
-		delete clients[socket.id];
+		client.join(id);
+		clients[client.id].roomId = id;
+		console.log('set room: '.magenta + id);
+	});
+
+	client.on('createRoom', function(name){
+		var id = uuid.v4();
+		var room = new Room(name, id);
+		rooms[id] = room;
+	});
+
+	client.on('join', function(){
+		console.log('user joined room');
+	});
+	client.on('leave', function(){
+		console.log('user left room');
+	});
+
+	client.on('disconnect', function(){
+		console.log('deleting client: ' + client.id);
+		delete clients[client.id];
 		console.log('user disconnected');
 	});
+
+	client.emit('msg', 'Welcome!');
 });
 
 // custom commands
@@ -65,7 +97,7 @@ var commands = {
 var cmdReceive = function(cmd){
 	var cmdName = _.isString(cmd) ? cmd : cmd.name;
 	console.log('command received: '.yellow + cmdName);
-	var ctx = 'global';
+	var ctx = this.roomId;
 
 	if (_.isString(cmd)) {
 		io.to(ctx).emit('cmd', cmd);
@@ -80,6 +112,7 @@ var cmdReceive = function(cmd){
 				data: _cmd.action(cmd.data)
 			};
 
+			console.log('emit command to: '.yellow + ctx);
 			io.to(ctx).emit('cmd', cmdObj);
 		}
 	}
@@ -87,7 +120,8 @@ var cmdReceive = function(cmd){
 
 var msgReceive = function(msg){
 	console.log('message received: '.cyan + msg);
-	var ctx = 'global';
+	var ctx = this.roomId;
+	console.log('emit message to: '.cyan + ctx);
 	io.to(ctx).emit('msg', msg);
 };
 
