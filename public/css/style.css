@@ -45,6 +45,20 @@ input.param {
 	width: 90px;
 }
 
+#room-container {
+	float: right;
+	width: 210px;
+	margin-top: 5px;
+}
+
+#room-container input {
+	width: 160px;
+}
+
+#room-container button {
+	width: 20%;
+}
+
 button {
 	font-size: 16px;
 	line-height: 16px;

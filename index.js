@@ -44,9 +44,14 @@ io.on('connection', function(client){
 			rooms[id] = new Room('room'+_.size(rooms), id);
 		}
 
+		if (clients[client.id].roomId)
+			client.leave(clients[client.id].roomId);
 		client.join(id);
+
 		clients[client.id].roomId = id;
+		
 		console.log('set room: '.magenta + id);
+		console.log(clients);
 	});
 
 	client.on('createRoom', function(name){
@@ -121,6 +126,9 @@ var cmdReceive = function(cmd){
 var msgReceive = function(msg){
 	console.log('message received: '.cyan + msg);
 	var ctx = this.roomId;
+
+	console.log(this);
+
 	console.log('emit message to: '.cyan + ctx);
 	io.to(ctx).emit('msg', msg);
 };

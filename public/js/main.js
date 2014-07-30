@@ -71,7 +71,7 @@ function receiveMsg(msg) {
 }
 
 
-function joinRoom(name) {
+function joinRoom() {
 	var hash = window.location.hash.substr(1);
 	if (hash == '') {
 		hash = 'room'+Math.round(Math.random()*1000);
@@ -81,6 +81,17 @@ function joinRoom(name) {
 	socket.emit('joinRoom', hash);
 }
 
+function setRoom(e) {
+	e.preventDefault();
+
+	var name = $('#room').val();
+	if (name != '') {
+		window.location.hash = '#'+name;
+		socket.emit('joinRoom', name);
+	}
+
+	return false;
+}
 
 function init() {
 	joinRoom();
@@ -90,6 +101,8 @@ function init() {
 
 	$('#msg-form').submit(postMsg);
 	socket.on('msg', receiveMsg);
+
+	$('#room-form').submit(setRoom);
 
 	// custom commands
 	$('#container').on('click', '.cmd', function(ev){
