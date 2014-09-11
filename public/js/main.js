@@ -1,106 +1,36 @@
 'use strict';
 
-var socket = io();
+var bc;
 
-var $cmd = $('#cmd');
-var $msg = $('#msg');
+var $cmd;
+var $msg;
 
-var commands = {
-	'list': {
-		description: 'list users',
-		action: function(data){
-			var $el = $('<div>').text(data.value);
-			$('#cmds').prepend($el);
-		}
-	},
-	'color': {
-		description: 'change background color',
-		action: function(data){
-			console.log(data);
-			$('body').css('background-color', data.value);
-		}
-	}
-};
-
-function postCmd() {
-	var val = $cmd.val().trim();
-	if (val != '') {
-		sendCmd(val);
-		$cmd.val('');
-	}
-	return false;
-}
-function sendCmd(cmd) {
-	console.log('sending command: ' + cmd);
-	socket.emit('cmd', cmd);
-}
-function receiveCmd(cmd) {
-	var cmdName = _.isString(cmd) ? cmd : cmd.name;
-	console.log('received command: ' + cmdName);
-
-	if (_.isString(cmd)) {
-		var $el = $('<div>').text(cmd);
-		$('#cmds').prepend($el);
-	} else {
-		if (_.contains(_.keys(commands), cmdName)) {
-			var _cmd = commands[cmdName];
-			_cmd.action(cmd.data);
-		} else {
-			console.log('unknown command');
-		}
-	}
-}
-
-function postMsg(){
-	var val = $msg.val().trim();
-	if (val != '') {
-		sendMsg(val);
-		$msg.val('');
-	}
-
-	return false;
-}
-function sendMsg(msg) {
-	console.log('sending message: ' + msg);
-	socket.emit('msg', msg);
-}
-function receiveMsg(msg) {
-	console.log('received message: ' + msg);
-	var $el = $('<div>').text(msg);
-	$('#msgs').prepend($el);
-}
-
-
-function joinRoom() {
-	var hash = window.location.hash.substr(1);
-	if (hash == '') {
-		hash = 'room'+Math.round(Math.random()*1000);
-		window.location.hash = hash;
-	}
-
-	socket.emit('joinRoom', hash);
-}
-
-function setRoom(e) {
-	e.preventDefault();
-
-	var name = $('#room').val();
-	if (name != '') {
-		window.location.hash = '#'+name;
-		socket.emit('joinRoom', name);
-	}
-
-	return false;
-}
+$(init);
 
 function init() {
-	joinRoom();
+	$cmd = $('#cmd');
+	$msg = $('#msg');
 
-	$('#cmd-form').submit(postCmd);
-	socket.on('cmd', receiveCmd);
+	var options = {
 
-	$('#msg-form').submit(postMsg);
-	socket.on('msg', receiveMsg);
+	};
+	bc = new BC(options);
+
+	$('#cmd-form').submit(function(){
+		var val = $cmd.val().trim();
+		bc.sendCmd(val);
+		$cmd.val('');
+		return false;
+	});
+	bc.socket.on('cmd', receiveCmd);
+
+	$('#msg-form').submit(function(){
+		var val = $msg.val().trim();
+		bc.sendMsg(val);
+		$msg.val('');
+		return false;
+	});
+	bc.socket.on('msg', receiveMsg);
 
 	$('#room-form').submit(setRoom);
 
@@ -120,8 +50,59 @@ function init() {
 			cmdObj.data.value = $('#color-param').val();
 		}
 
-		sendCmd(cmdObj);
+		bc.sendCmd(cmdObj);
 	});
 }
 
-init();
+var commands = {
+	'list': {
+		description: 'list users',
+		action: function(data){
+			var $el = $('<div>').text(data.value);
+			$('#cmds').prepend($el);
+		}
+	},
+	'color': {
+		description: 'change background color',
+		action: function(data){
+			console.log(data);
+			$('body').css('background-color', data.value);
+		}
+	}
+};
+
+function receiveCmd(cmd) {
+	var cmdName = _.isString(cmd) ? cmd : cmd.name;
+	console.log('received command: ' + cmdName);
+
+	if (_.isString(cmd)) {
+		var $el = $('<div>').text(cmd);
+		$('#cmds').prepend($el);
+	} else {
+		if (_.contains(_.keys(commands), cmdName)) {
+			var _cmd = commands[cmdName];
+			_cmd.action(cmd.data);
+		} else {
+			console.log('unknown command');
+		}
+	}
+}
+
+function receiveMsg(msg) {
+	console.log('received message: ' + msg);
+	var $el = $('<div>').text(msg);
+	$('#msgs').prepend($el);
+}
+
+function setRoom(e) {
+	e.preventDefault();
+
+	var name = $('#room').val();
+	if (name != '') {
+		window.location.hash = '#'+name;
+		bc.socket.emit('joinRoom', name);
+	}
+
+	return false;
+}
+
